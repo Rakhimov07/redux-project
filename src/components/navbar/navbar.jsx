@@ -1,48 +1,46 @@
-import { Flex, HStack, Icon, IconButton, Image, Stack, Text, useColorMode, useColorModeValue } from '@chakra-ui/react'
-import React from 'react'
-import { Link } from 'react-router-dom'
-import {logo, navigation} from '../../config/constants'
-import {BsFillSunFill,BsFillMoonFill,} from 'react-icons/bs'
-const Navbar = () => {
-  const textHoverColor = useColorModeValue('facebook.200','white')
-  const textColor = useColorModeValue('gray.900','facebook.200')
-  const {toggleColorMode,colorMode} = useColorMode()
-  return <Flex 
-  borderBottom={'1px'}
-  borderBottomColor={useColorModeValue('gray.400','gray.700')}
-  px={{base:5,md:10}}
-  justify={'space-between'} 
-  align={'center'} 
-  pos={'fixed'}
-  top={0}
-  left={0}
-  right={0}
-  h={'10vh'}
-   backgroundColor={useColorModeValue('gray.200','gray.900')}
-   >
-   <HStack>
-    <Link to={'/'}>
-      <Image src={logo} alt='logo' />
+import {Link} from 'react-router-dom'
+import {logo} from '../../config/constants'
+import { useDispatch, useSelector } from 'react-redux'
+import { logoutUser } from '../../slice/auth'
+import { removeItem } from '../../helpers'
+import { AiOutlineMenu,AiOutlineClose } from 'react-icons/ai'
 
-    </Link>
-   </HStack>
-   <HStack gap={5}>
-    {navigation.map(item => (
-      <Link key={item.name} to={item.route}>
-        <Text fontSize={{base:'md',md:'17px'}}  color={textColor} _hover={{textDecoration:'underline',color:textHoverColor}}>
-          {item.name}
-        </Text>
-      </Link>
-    ))}
-   <IconButton
-          onClick={toggleColorMode}
-           aria-label='color-mode' 
-           icon={colorMode === 'light' ? <BsFillMoonFill/>:<BsFillSunFill/>}
-           colorScheme={'facebook'}
-           variant={'outline'}
-           />
-   </HStack>
-  </Flex>
+import { useState } from 'react'
+
+
+const Navbar = () => {
+	const {loggedIn,user} = useSelector(state => state.auth)
+	const dispatch = useDispatch()
+	const [menu,setMenu] = useState(false)
+	const logoutHandle = () => {
+		removeItem('token')
+		dispatch(logoutUser())
+	}
+	return (
+		<div className='d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom container pt-3'>
+		<Link to={'/'}>
+			<img src={logo} alt='' />
+		</Link>
+
+		<nav className='d-inline-flex mt-2 mt-md-0 ms-md-auto'>
+			{loggedIn ? (
+				<>
+					<p className='me-3 py-2 m-0 text-dark text-decoration-none'>{user.username}</p>
+					<button className='btn btn-outline-danger'>Logout</button>
+				</>
+			) : (
+				<>
+					<Link className='me-3 py-2 text-dark text-decoration-none' to={'/login'}>
+						Login
+					</Link>
+					<Link className='me-3 py-2 text-dark text-decoration-none' to={'/register'}>
+						Register
+					</Link>
+				</>
+			)}
+		</nav>
+	</div>
+	)
 }
 
 export default Navbar
